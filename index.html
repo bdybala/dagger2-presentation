@@ -1,0 +1,523 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>Dagger2 - Dependency Injection Pattern</title>
+
+		<link rel="stylesheet" href="css/reset.css">
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/black.css">
+
+		<!-- Theme used for syntax highlighting of code -->
+		<link rel="stylesheet" href="lib/css/dracula.css">
+
+		<style>
+
+			.hljs {
+				overflow: hidden !important;
+			}
+			.hljs-variable {
+			   color: red
+			 }
+
+			.hljs-type {
+			   color: orange
+			}
+			.hljs-literal {
+			   color: yellow
+			}
+		</style>
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+				<section></section>
+				<section data-background="#007acc" data-background-transition="zoom">
+					<h1>Dagger2</h2>
+					<h3>jako przykład Dependecy injection</h4>
+				</section>
+				<section data-transition="slide-in fade-out">
+					<h2>Dependency Injection</h2>
+					<p>
+						<img src="img/dependency-injection_A-B.png" />
+					</p>
+				</section>
+				<section data-transition="fade">
+					<h2>Dependency Injection</h2>
+					<p>
+						<img src="img/dependency-injection_Car-Engine.png" />
+					</p>
+				</section>
+				<section data-transition="fade-in slide-out">
+					<h2>Dependency Injection</h2>
+					<p>
+						<img src="img/dependency-injection_Service-DAO.png" />
+					</p>
+				</section>
+				<section data-transition="slide-in fade-out">
+					<h2>Dependency Injection</h2>
+					<p>Kod bez Dependency Injection</p>
+					<pre><code data-trim data-noescape>
+							public class Car {
+								private Engine engine;
+								private Wheels wheels;
+
+								public Car() {
+									this.engine = new Engine();
+									this.wheels = new Wheels();
+								}
+							}
+					</code></pre>
+				</section>
+				<section data-transition="fade-in slide-out">
+					<h2>Dependency Injection</h2>
+					<p>Kod z Dependency Injection</p>
+					<pre><code data-trim data-noescape>
+							public class Car {
+								private Engine engine;
+								private Wheels wheels;
+
+								public Car(Engine engine, Wheels wheels) {
+									this.engine = engine;
+									this.wheels = wheels;
+								}
+							}
+					</code></pre>
+				</section>
+				<section>
+					<h2>Dependency Injection</h2>
+					<p>Niepotrzebny kod boilerplate</p>
+					<pre><code class="stretch" data-trim data-noescape data-line-numbers>
+						public class MainActivity extends AppCompatActivity {
+
+						    @Override
+						    protected void onCreate(@Bundle savedInstanceState) {
+						        super.onCreate(savedInstanceState);
+						        setContentView(R.layout.activity_main);
+
+						        Block block = new Block();
+						        Cylinders cylinders = new Cylinders();
+						        SparkPlugs sparkPlugs = new SparkPlugs();
+						        Tires tires = new Tires();
+						        Rims rims = new Rims();
+						        Engine engine = new Engine(block, cylinders, sparkPlugs);
+						        Wheels wheels = new Wheels(tires, rims);
+						        
+						        Car car = new Car(engine, wheels);
+						    }
+						}
+					</code></pre>
+				</section>
+				<section>
+					<h2>Dagger2</h2>
+					<div class="fragment">
+						<p>Konfiguracja</p>
+						<pre><code class="gradle" data-trim data-noescape>
+								// Add dagger dependencies
+								dependencies {
+									compile 'com.google.dagger:dagger:2.x'
+									annotationProcessor 'com.google.dagger:dagger-compiler:2.x'
+								}
+
+								// For <mark style="opacity: 0.7; background-color: #000000">dagger.android</mark> classes, one should also include:
+								compile 'com.google.dagger:dagger-android:2.x'
+								compile 'com.google.dagger:dagger-android-support:2.x'
+								annotationProcessor 'com.google.dagger:dagger:dagger-android-processor:2.x'
+						</code></pre>
+					</div>
+				</section>
+				<section>
+					<p>@Component</p>
+					<pre><code data-trim data-noescape>
+							import dagger.Component;
+
+							@Component
+							public interface CarComponent {
+
+								Car getCar();
+							}
+					</code></pre>
+				</section>
+				<section>
+					<h3>Constructor Injection</h3>
+					<pre><code data-trim data-noescape>
+						import javax.inject.Inject;
+
+						public class Car {
+
+							private Engine engine;
+							private Wheels wheels;
+
+							@Inject
+							public Car(Engine engine, Wheels wheels) {
+								this.engine = engine;
+								this.wheels = wheels;
+							}
+						}
+					</code></pre>
+				</section>
+				<section>
+					<h3>Tworzenie obiektu</h3>
+					<p>Dagger2 przejmuje kod boilerplate</p>
+					<pre><code class="stretch" data-trim data-noescape data-line-numbers="8">
+						public class MainActivity extends AppCompatActivity {
+
+						    @Override
+						    protected void onCreate(@Bundle savedInstanceState) {
+						        super.onCreate(savedInstanceState);
+						        setContentView(R.layout.activity_main);
+
+						        CarComponent component = DaggerCarComponent.create();
+						        
+						        Car car = component.getCar();
+						    }
+						}
+					</code></pre>
+				</section>
+				<section>
+					<h3>Field Injection</h3>
+					<p>Umożliwienie wstrzyknięcia zależności do klasy</p>
+					<pre><code data-trim data-noescape data-line-numbers="8">
+							import dagger.Component;
+
+							@Component
+							public interface CarComponent {
+
+								Car getCar();
+
+								void inject(MainActivity mainActivity);
+							}
+					</code></pre>
+				</section>
+				<section>
+					<h3>Field Injection</h3>
+					<p>Wstrzyknięcie zależności do pola</p>
+					<pre><code class="stretch" data-trim data-noescape data-line-numbers="5-6,14,16">
+						import javax.inject.Inject;
+
+						public class MainActivity extends AppCompatActivity {
+
+							@Inject
+							Car car;
+
+						    @Override
+						    protected void onCreate(@Bundle savedInstanceState) {
+						        super.onCreate(savedInstanceState);
+						        setContentView(R.layout.activity_main);
+
+						        CarComponent component = DaggerCarComponent.create();
+						        component.inject(this);
+
+						        Assert.assertNotNull(car);
+						    }
+						}
+					</code></pre>
+				</section>
+				<section>
+					<h3>Method Injection</h3>
+					<pre><code class="stretch" data-trim data-noescape data-line-numbers="13-16">
+						import javax.inject.Inject;
+
+						public class Car {
+
+							private Engine engine;
+							private Wheels wheels;
+
+							@Inject
+							public Car(Engine engine, Wheels wheels) {
+								this.engine = engine;
+								this.wheels = wheels;
+							}
+
+							@Inject
+							public void enableRemote(Remote remote) {
+								remote.setListener(this);
+							}
+						}
+					</code></pre>
+				</section>
+				<section>
+					<p>@Inject</p>
+					<p>Kolejność wstrzykiwania zależności</p>
+					<pre><code class="stretch" data-trim data-noescape data-line-numbers>
+						import javax.inject.Inject;
+
+						public class Car {
+
+							@Inject
+							private Engine engine;
+							private Wheels wheels;
+
+							@Inject
+							public Car(Wheels wheels) {
+								this.wheels = wheels;
+							}
+
+							@Inject
+							public void enableRemote(Remote remote) {
+								remote.setListener(this);
+							}
+						}
+					</code></pre>
+				</section>
+				<section data-transition="slide-in fade-out">
+					<h3>Moduły</h3>
+					<pre><code data-trim data-noescape data-line-numbers>
+						public class Wheels {
+
+							private Rims rims;
+							private Tires tires;
+
+							@Inject
+							public Wheels(Rims rims, Tires tires) {
+								this.rims = rims;
+								this.tires = tires;
+							}
+						}
+					</code></pre>
+				</section>
+				<section data-transition="fade-in slide-out">
+					<h3>Moduły</h3>
+					<pre><code data-trim data-noescape data-line-numbers>
+						// Third-party class! Cannot edit
+						public class Wheels {
+
+							private Rims rims;
+							private Tires tires;
+
+							public Wheels(Rims rims, Tires tires) {
+								this.rims = rims;
+								this.tires = tires;
+							}
+						}
+					</code></pre>
+				</section>
+				<section data-transition="slide-in fade-out">
+					<p>@Module</p>
+					<pre><code data-trim data-noescape data-line-numbers>
+						import dagger.Module;
+						import dagger.Provides;
+
+						@Module
+						public class WheelsModule {
+
+							@Provides
+							Rims provideRims() {
+								return new Rims();
+							}
+
+							@Provides
+							Tires provideTires() {
+								Tires tires = new Tires();
+								tires.inflate();
+								return tires;
+							}
+
+							@Provides
+							Wheels provideWheels(Rims rims, Tires tires) {
+								return new Wheels(rims, tires);
+							}
+						}
+					</code></pre>
+				</section>
+				<section data-transition="fade-in slide-out">
+					<p>@Module</p>
+					<pre><code data-trim data-noescape data-line-numbers>
+						import dagger.Module;
+						import dagger.Provides;
+
+						@Module
+						public class WheelsModule {
+
+							@Provides
+							static Rims provideRims() {
+								return new Rims();
+							}
+
+							@Provides
+							static Tires provideTires() {
+								Tires tires = new Tires();
+								tires.inflate();
+								return tires;
+							}
+
+							@Provides
+							static Wheels provideWheels(Rims rims, Tires tires) {
+								return new Wheels(rims, tires);
+							}
+						}
+					</code></pre>
+				</section>
+				<section>
+					<p>Uwzględnienie Modułu w Komponencie</p>
+					<pre><code data-trim data-noescape data-line-numbers="3">
+							import dagger.Component;
+
+							@Component(modules = WheelsModule.class)
+							public interface CarComponent {
+
+								Car getCar();
+
+								void inject(MainActivity mainActivity);
+							}
+					</code></pre>
+				</section>
+				<section data-transition="slide-in fade-out">
+					<h3>Interfejsy</h3>
+					<pre><code data-trim data-noescape data-line-numbers>
+							public class Engine {
+								@Inject
+								public Engine() {}
+							}
+					</code></pre>
+				</section>
+				<section data-transition="fade-in slide-out">
+					<h3>Interfejsy</h3>
+					<pre><code data-trim data-noescape data-line-numbers>
+							public interface Engine {
+
+								void start();
+							}
+					</code></pre>
+				</section>
+				<section>
+					<p>Wstrzyknięcie interfejsu?</p>
+					<pre><code class="stretch" data-trim data-noescape data-line-numbers>
+						import javax.inject.Inject;
+
+						public class Car {
+
+							private Engine engine;
+							private Wheels wheels;
+
+							@Inject
+							public Car(Engine engine, Wheels wheels) {
+								this.engine = engine;
+								this.wheels = wheels;
+							}
+
+							@Inject
+							public void enableRemote(Remote remote) {
+								remote.setListener(this);
+							}
+						}
+					</code></pre>
+				</section>
+				<section>
+					<p>Tworzymy implementacje interfejsu</p>
+					<pre><code class="stretch" data-trim data-noescape data-line-numbers>
+						public class PetrolEngine implements Engine {
+
+							@Inject
+							public PetrolEngine() {}
+
+							void start() {
+								// start engine...
+							}
+
+						}
+					</code></pre>
+					<pre><code class="stretch" data-trim data-noescape data-line-numbers>
+						public class DieselEngine implements Engine {
+
+							@Inject
+							public DieselEngine() {}
+
+							void start() {
+								// start engine...
+							}
+
+						}
+					</code></pre>
+				</section>
+				<section data-transition="slide-in fade-out">
+					<p>Tworzymy moduły dla implementacji</p>
+					<pre><code class="stretch" data-trim data-noescape data-line-numbers>
+						import dagger.Module;
+						import dagger.Provides;
+
+						@Module
+						public class PetrolEngineModule {
+							@Provides
+							Engine provideEngine() {
+								return new PetrolEngine();
+							}
+						}
+					</code></pre>
+				</section>
+				<section data-transition="fade">
+					<p>Tworzymy moduły dla implementacji</p>
+					<pre><code class="stretch" data-trim data-noescape data-line-numbers>
+						import dagger.Module;
+						import dagger.Provides;
+
+						@Module
+						public class PetrolEngineModule {
+							@Provides
+							Engine provideEngine(PetrolEngine engine) {
+								return engine;
+							}
+						}
+					</code></pre>
+				</section>
+				<section data-transition="fade-in slide-out">
+					<p>Tworzymy moduły dla implementacji</p>
+					<pre><code class="stretch" data-trim data-noescape data-line-numbers>
+						import dagger.Module;
+						import dagger.Provides;
+
+						@Module
+						public class DieselEngineModule {
+
+							@Binds
+							Engine provideEngine(DieselEngine engine);
+
+						}
+					</code></pre>
+				</section>
+				<section>
+					<h2>Podsumowanie</h2>
+					<ul>
+						<li class="fragment">@Inject nad konstruktorem</li>
+						<li class="fragment">@Inject nad nieprywatnym polem + wstrzyknięcie przez .inject()</li>
+						<li class="fragment">@Inject nad metodą gdy zewnętrzna klasa B potrzebuje klasy A</li>
+						<li class="fragment">@Provides przy klasach z bibliotek lub, gdy konfigurujemy Obiekt</li>
+						<li class="fragment">@Binds przy implementacjach interfejsów</li>
+					</ul>
+				</section>
+			</div>
+		</div>
+
+		<script src="js/reveal.js"></script>
+
+		<script>
+			// More info about config & dependencies:
+			// - https://github.com/hakimel/reveal.js#configuration
+			// - https://github.com/hakimel/reveal.js#dependencies
+			Reveal.initialize({
+				hash: true,
+				controls: true,
+				progress: true,
+				center: true,
+				width: "75%",
+				dependencies: [
+					{ src: 'plugin/markdown/marked.js' },
+					{ src: 'plugin/markdown/markdown.js' },
+					{ src: 'plugin/notes/notes.js', async: true },
+					{ src: 'plugin/highlight/highlight.js', async: true }
+				]
+			});
+		</script>
+	</body>
+</html>
