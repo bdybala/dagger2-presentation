@@ -11,7 +11,7 @@
 		<link rel="stylesheet" href="css/theme/black.css">
 
 		<!-- Theme used for syntax highlighting of code -->
-		<link rel="stylesheet" href="lib/css/dracula.css">
+		<link rel="stylesheet" href="lib/css/vs.css">
 
 		<style>
 
@@ -49,7 +49,7 @@
 				</section>
 				<section data-transition="slide-in fade-out">
 					<h2>Dependency Injection</h2>
-					<p>
+					<p class="fragment">
 						<img src="img/dependency-injection_A-B.png" />
 					</p>
 				</section>
@@ -68,7 +68,7 @@
 				<section data-transition="slide-in fade-out">
 					<h2>Dependency Injection</h2>
 					<p>Kod bez Dependency Injection</p>
-					<pre><code data-trim data-noescape>
+					<pre><code class="java" data-trim data-noescape>
 							public class Car {
 								private Engine engine;
 								private Wheels wheels;
@@ -83,7 +83,7 @@
 				<section data-transition="fade-in slide-out">
 					<h2>Dependency Injection</h2>
 					<p>Kod z Dependency Injection</p>
-					<pre><code data-trim data-noescape>
+					<pre><code class="java" data-trim data-noescape>
 							public class Car {
 								private Engine engine;
 								private Wheels wheels;
@@ -98,7 +98,7 @@
 				<section>
 					<h2>Dependency Injection</h2>
 					<p>Niepotrzebny kod boilerplate</p>
-					<pre><code class="stretch" data-trim data-noescape data-line-numbers>
+					<pre><code class="java stretch" data-trim data-noescape data-line-numbers>
 						public class MainActivity extends AppCompatActivity {
 
 						    @Override
@@ -121,7 +121,13 @@
 				</section>
 				<section>
 					<h2>Dagger2</h2>
-					<div class="fragment">
+					<div>
+						<p>Dlaczego?</p>
+					</div>
+				</section>
+				<section>
+					<h2>Dagger2</h2>
+					<div>
 						<p>Konfiguracja</p>
 						<pre><code class="gradle" data-trim data-noescape>
 								// Add dagger dependencies
@@ -129,15 +135,11 @@
 									compile 'com.google.dagger:dagger:2.x'
 									annotationProcessor 'com.google.dagger:dagger-compiler:2.x'
 								}
-
-								// For <mark style="opacity: 0.7; background-color: #000000">dagger.android</mark> classes, one should also include:
-								compile 'com.google.dagger:dagger-android:2.x'
-								compile 'com.google.dagger:dagger-android-support:2.x'
-								annotationProcessor 'com.google.dagger:dagger:dagger-android-processor:2.x'
 						</code></pre>
 					</div>
 				</section>
 				<section>
+					<h2>Dagger2</h2>
 					<p>@Component</p>
 					<pre><code data-trim data-noescape>
 							import dagger.Component;
@@ -151,7 +153,7 @@
 				</section>
 				<section>
 					<h3>Constructor Injection</h3>
-					<pre><code data-trim data-noescape>
+					<pre class="fragment"><code class="java" data-trim data-noescape>
 						import javax.inject.Inject;
 
 						public class Car {
@@ -170,7 +172,7 @@
 				<section>
 					<h3>Tworzenie obiektu</h3>
 					<p>Dagger2 przejmuje kod boilerplate</p>
-					<pre><code class="stretch" data-trim data-noescape data-line-numbers="8">
+					<pre><code class="java stretch" data-trim data-noescape data-line-numbers>
 						public class MainActivity extends AppCompatActivity {
 
 						    @Override
@@ -185,10 +187,46 @@
 						}
 					</code></pre>
 				</section>
+				<section data-transition="slide-in fade-out">
+					<pre><code class="java stretch" data-trim data-noescape data-line-numbers>
+						public class MainActivity extends AppCompatActivity {
+
+						    @Override
+						    protected void onCreate(@Bundle savedInstanceState) {
+						        super.onCreate(savedInstanceState);
+						        setContentView(R.layout.activity_main);
+
+						        CarComponent component = DaggerCarComponent.create();
+						        
+						        Car car = component.getCar();
+						    }
+						}
+					</code></pre>
+				</section>
+				<section data-transition="fade-in slide-out">
+					<h3 class="fragment">Field Injection</h3>
+					<pre><code class="java stretch" data-trim data-noescape data-line-numbers>
+						public class MainActivity extends AppCompatActivity {
+
+						    Car car;
+
+						    @Override
+						    protected void onCreate(@Bundle savedInstanceState) {
+						        super.onCreate(savedInstanceState);
+						        setContentView(R.layout.activity_main);
+
+						        CarComponent component = DaggerCarComponent.create();
+						        
+						        car = component.getCar();
+						    }
+						}
+					</code></pre>
+				</section>
+
 				<section>
 					<h3>Field Injection</h3>
 					<p>Umożliwienie wstrzyknięcia zależności do klasy</p>
-					<pre><code data-trim data-noescape data-line-numbers="8">
+					<pre><code class="java" data-trim data-noescape data-line-numbers>
 							import dagger.Component;
 
 							@Component
@@ -203,13 +241,13 @@
 				<section>
 					<h3>Field Injection</h3>
 					<p>Wstrzyknięcie zależności do pola</p>
-					<pre><code class="stretch" data-trim data-noescape data-line-numbers="5-6,14,16">
+					<pre><code class="java stretch" data-trim data-noescape data-line-numbers>
 						import javax.inject.Inject;
 
 						public class MainActivity extends AppCompatActivity {
 
-							@Inject
-							Car car;
+						    @Inject
+						    Car car;
 
 						    @Override
 						    protected void onCreate(@Bundle savedInstanceState) {
@@ -226,7 +264,7 @@
 				</section>
 				<section>
 					<h3>Method Injection</h3>
-					<pre><code class="stretch" data-trim data-noescape data-line-numbers="13-16">
+					<pre><code class="java stretch" data-trim data-noescape data-line-numbers>
 						import javax.inject.Inject;
 
 						public class Car {
@@ -249,31 +287,17 @@
 				</section>
 				<section>
 					<p>@Inject</p>
-					<p>Kolejność wstrzykiwania zależności</p>
-					<pre><code class="stretch" data-trim data-noescape data-line-numbers>
-						import javax.inject.Inject;
-
-						public class Car {
-
-							@Inject
-							private Engine engine;
-							private Wheels wheels;
-
-							@Inject
-							public Car(Wheels wheels) {
-								this.wheels = wheels;
-							}
-
-							@Inject
-							public void enableRemote(Remote remote) {
-								remote.setListener(this);
-							}
-						}
-					</code></pre>
+					<p>Sposoby na wstrzyknięcie zależności</p>
+					<hr></hr>
+					<ul>
+						<li class="fragment">Constructor Injection</li>
+						<li class="fragment">Field Injection</li>
+						<li class="fragment">Method Injection</li>
+					</ul>
 				</section>
 				<section data-transition="slide-in fade-out">
 					<h3>Moduły</h3>
-					<pre><code data-trim data-noescape data-line-numbers>
+					<pre><code class="java" data-trim data-noescape data-line-numbers>
 						public class Wheels {
 
 							private Rims rims;
@@ -289,7 +313,7 @@
 				</section>
 				<section data-transition="fade-in slide-out">
 					<h3>Moduły</h3>
-					<pre><code data-trim data-noescape data-line-numbers>
+					<pre><code class="java" data-trim data-noescape data-line-numbers>
 						// Third-party class! Cannot edit
 						public class Wheels {
 
@@ -305,7 +329,7 @@
 				</section>
 				<section data-transition="slide-in fade-out">
 					<p>@Module</p>
-					<pre><code data-trim data-noescape data-line-numbers>
+					<pre><code class="java" data-trim data-noescape data-line-numbers>
 						import dagger.Module;
 						import dagger.Provides;
 
@@ -333,7 +357,7 @@
 				</section>
 				<section data-transition="fade-in slide-out">
 					<p>@Module</p>
-					<pre><code data-trim data-noescape data-line-numbers>
+					<pre><code class="java" data-trim data-noescape data-line-numbers>
 						import dagger.Module;
 						import dagger.Provides;
 
@@ -361,7 +385,7 @@
 				</section>
 				<section>
 					<p>Uwzględnienie Modułu w Komponencie</p>
-					<pre><code data-trim data-noescape data-line-numbers="3">
+					<pre><code class="java" data-trim data-noescape data-line-numbers>
 							import dagger.Component;
 
 							@Component(modules = WheelsModule.class)
@@ -375,7 +399,7 @@
 				</section>
 				<section data-transition="slide-in fade-out">
 					<h3>Interfejsy</h3>
-					<pre><code data-trim data-noescape data-line-numbers>
+					<pre><code class="java" data-trim data-noescape data-line-numbers>
 							public class Engine {
 								@Inject
 								public Engine() {}
@@ -384,7 +408,7 @@
 				</section>
 				<section data-transition="fade-in slide-out">
 					<h3>Interfejsy</h3>
-					<pre><code data-trim data-noescape data-line-numbers>
+					<pre><code class="java" data-trim data-noescape data-line-numbers>
 							public interface Engine {
 
 								void start();
@@ -393,7 +417,7 @@
 				</section>
 				<section>
 					<p>Wstrzyknięcie interfejsu?</p>
-					<pre><code class="stretch" data-trim data-noescape data-line-numbers>
+					<pre><code class="java stretch" data-trim data-noescape data-line-numbers>
 						import javax.inject.Inject;
 
 						public class Car {
@@ -416,7 +440,7 @@
 				</section>
 				<section>
 					<p>Tworzymy implementacje interfejsu</p>
-					<pre><code class="stretch" data-trim data-noescape data-line-numbers>
+					<pre><code class="java stretch" data-trim data-noescape data-line-numbers>
 						public class PetrolEngine implements Engine {
 
 							@Inject
@@ -428,7 +452,7 @@
 
 						}
 					</code></pre>
-					<pre><code class="stretch" data-trim data-noescape data-line-numbers>
+					<pre><code class="java stretch" data-trim data-noescape data-line-numbers>
 						public class DieselEngine implements Engine {
 
 							@Inject
@@ -443,7 +467,7 @@
 				</section>
 				<section data-transition="slide-in fade-out">
 					<p>Tworzymy moduły dla implementacji</p>
-					<pre><code class="stretch" data-trim data-noescape data-line-numbers>
+					<pre><code class="java stretch" data-trim data-noescape data-line-numbers>
 						import dagger.Module;
 						import dagger.Provides;
 
@@ -458,7 +482,7 @@
 				</section>
 				<section data-transition="fade">
 					<p>Tworzymy moduły dla implementacji</p>
-					<pre><code class="stretch" data-trim data-noescape data-line-numbers>
+					<pre><code class="java stretch" data-trim data-noescape data-line-numbers>
 						import dagger.Module;
 						import dagger.Provides;
 
@@ -473,7 +497,7 @@
 				</section>
 				<section data-transition="fade-in slide-out">
 					<p>Tworzymy moduły dla implementacji</p>
-					<pre><code class="stretch" data-trim data-noescape data-line-numbers>
+					<pre><code class="java stretch" data-trim data-noescape data-line-numbers>
 						import dagger.Module;
 						import dagger.Provides;
 
