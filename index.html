@@ -97,8 +97,8 @@
 				</section>
 				<section>
 					<h2>Dependency Injection</h2>
-					<p>Niepotrzebny kod boilerplate</p>
-					<pre><code class="java stretch" data-trim data-noescape data-line-numbers>
+					<p>Dodajemy obiekt Car do MainActivity</p>
+					<pre class="fragment"><code class="java stretch" data-trim data-noescape data-line-numbers>
 						public class MainActivity extends AppCompatActivity {
 
 						    @Override
@@ -121,8 +121,13 @@
 				</section>
 				<section>
 					<h2>Dagger2</h2>
+					<p class="fragment">Dlaczego?</p>
 					<div>
-						<p>Dlaczego?</p>
+						<ul>
+							<li class="fragment">Nie używa refleksji - generuje kod podczas kompilacji</li>
+							<li class="fragment">Rzuca wyjątki podczas kompilacji</li>
+							<li class="fragment">Intuicyjne opisy błędów</li>
+						</ul>
 					</div>
 				</section>
 				<section>
@@ -152,8 +157,24 @@
 					</code></pre>
 				</section>
 				<section>
+					<pre><code class="java" data-trim data-noescape>
+						import javax.inject.Inject;
+
+						public class Car {
+
+							private Engine engine;
+							private Wheels wheels;
+
+							public Car(Engine engine, Wheels wheels) {
+								this.engine = engine;
+								this.wheels = wheels;
+							}
+						}
+					</code></pre>
+				</section>
+				<section>
 					<h3>Constructor Injection</h3>
-					<pre class="fragment"><code class="java" data-trim data-noescape>
+					<pre><code class="java" data-trim data-noescape>
 						import javax.inject.Inject;
 
 						public class Car {
@@ -170,22 +191,24 @@
 					</code></pre>
 				</section>
 				<section>
-					<h3>Tworzenie obiektu</h3>
-					<p>Dagger2 przejmuje kod boilerplate</p>
-					<pre><code class="java stretch" data-trim data-noescape data-line-numbers>
-						public class MainActivity extends AppCompatActivity {
+					<h3 >Tworzenie obiektu</h3>
+					<div class="fragment">
+						<p>Dagger2 przejmuje kod boilerplate</p>
+						<pre><code class="java stretch" data-trim data-noescape data-line-numbers>
+							public class MainActivity extends AppCompatActivity {
 
-						    @Override
-						    protected void onCreate(@Bundle savedInstanceState) {
-						        super.onCreate(savedInstanceState);
-						        setContentView(R.layout.activity_main);
+							    @Override
+							    protected void onCreate(@Bundle savedInstanceState) {
+							        super.onCreate(savedInstanceState);
+							        setContentView(R.layout.activity_main);
 
-						        CarComponent component = DaggerCarComponent.create();
-						        
-						        Car car = component.getCar();
-						    }
-						}
-					</code></pre>
+							        CarComponent component = DaggerCarComponent.create();
+							        
+							        Car car = component.getCar();
+							    }
+							}
+						</code></pre>
+					</div>
 				</section>
 				<section data-transition="slide-in fade-out">
 					<pre><code class="java stretch" data-trim data-noescape data-line-numbers>
@@ -296,7 +319,6 @@
 					</ul>
 				</section>
 				<section data-transition="slide-in fade-out">
-					<h3>Moduły</h3>
 					<pre><code class="java" data-trim data-noescape data-line-numbers>
 						public class Wheels {
 
@@ -312,9 +334,8 @@
 					</code></pre>
 				</section>
 				<section data-transition="fade-in slide-out">
-					<h3>Moduły</h3>
 					<pre><code class="java" data-trim data-noescape data-line-numbers>
-						// Third-party class! Cannot edit
+						// Koła na części, złóż sobie sam!
 						public class Wheels {
 
 							private Rims rims;
@@ -327,19 +348,16 @@
 						}
 					</code></pre>
 				</section>
-				<section data-transition="slide-in fade-out">
+				<section>
 					<p>@Module</p>
-					<pre><code class="java" data-trim data-noescape data-line-numbers>
+					<pre><code class="java stretch" data-trim data-noescape data-line-numbers>
 						import dagger.Module;
 						import dagger.Provides;
 
 						@Module
 						public class WheelsModule {
-
 							@Provides
-							Rims provideRims() {
-								return new Rims();
-							}
+							Rims provideRims() { return new Rims(); }
 
 							@Provides
 							Tires provideTires() {
@@ -350,34 +368,6 @@
 
 							@Provides
 							Wheels provideWheels(Rims rims, Tires tires) {
-								return new Wheels(rims, tires);
-							}
-						}
-					</code></pre>
-				</section>
-				<section data-transition="fade-in slide-out">
-					<p>@Module</p>
-					<pre><code class="java" data-trim data-noescape data-line-numbers>
-						import dagger.Module;
-						import dagger.Provides;
-
-						@Module
-						public class WheelsModule {
-
-							@Provides
-							static Rims provideRims() {
-								return new Rims();
-							}
-
-							@Provides
-							static Tires provideTires() {
-								Tires tires = new Tires();
-								tires.inflate();
-								return tires;
-							}
-
-							@Provides
-							static Wheels provideWheels(Rims rims, Tires tires) {
 								return new Wheels(rims, tires);
 							}
 						}
@@ -398,7 +388,7 @@
 					</code></pre>
 				</section>
 				<section data-transition="slide-in fade-out">
-					<h3>Interfejsy</h3>
+					<h3>Interface</h3>
 					<pre><code class="java" data-trim data-noescape data-line-numbers>
 							public class Engine {
 								@Inject
@@ -407,35 +397,12 @@
 					</code></pre>
 				</section>
 				<section data-transition="fade-in slide-out">
-					<h3>Interfejsy</h3>
+					<h3>Interface</h3>
 					<pre><code class="java" data-trim data-noescape data-line-numbers>
 							public interface Engine {
 
 								void start();
 							}
-					</code></pre>
-				</section>
-				<section>
-					<p>Wstrzyknięcie interfejsu?</p>
-					<pre><code class="java stretch" data-trim data-noescape data-line-numbers>
-						import javax.inject.Inject;
-
-						public class Car {
-
-							private Engine engine;
-							private Wheels wheels;
-
-							@Inject
-							public Car(Engine engine, Wheels wheels) {
-								this.engine = engine;
-								this.wheels = wheels;
-							}
-
-							@Inject
-							public void enableRemote(Remote remote) {
-								remote.setListener(this);
-							}
-						}
 					</code></pre>
 				</section>
 				<section>
@@ -462,6 +429,24 @@
 								// start engine...
 							}
 
+						}
+					</code></pre>
+				</section>
+				<section>
+					<p>Wstrzyknięcie interfejsu?</p>
+					<pre><code class="java stretch" data-trim data-noescape data-line-numbers>
+						import javax.inject.Inject;
+
+						public class Car {
+
+							private Engine engine;
+							private Wheels wheels;
+
+							@Inject
+							public Car(Engine engine, Wheels wheels) {
+								this.engine = engine;
+								this.wheels = wheels;
+							}
 						}
 					</code></pre>
 				</section>
@@ -511,13 +496,11 @@
 					</code></pre>
 				</section>
 				<section>
-					<h2>Podsumowanie</h2>
+					<p>Polecane linki</p>
 					<ul>
-						<li class="fragment">@Inject nad konstruktorem</li>
-						<li class="fragment">@Inject nad nieprywatnym polem + wstrzyknięcie przez .inject()</li>
-						<li class="fragment">@Inject nad metodą gdy zewnętrzna klasa B potrzebuje klasy A</li>
-						<li class="fragment">@Provides przy klasach z bibliotek lub, gdy konfigurujemy Obiekt</li>
-						<li class="fragment">@Binds przy implementacjach interfejsów</li>
+						<li><b>CodeCouple.pl</b> - wstrzykiwanie zależności</li>
+						<li>https://github.com<b>/google/dagger</b></li>
+						<li><b>Coding In Flow</b> - Dagger 2</li>
 					</ul>
 				</section>
 			</div>
